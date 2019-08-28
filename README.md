@@ -26,6 +26,7 @@ uncomment '#define VPCOM' in the main.c file.
 
 - [ ] Add pseudo-CRC control (but some remotes don't use the real NEC protocol)
 - [ ] Delete data when time out to repeat
+- [ ] IR receiver VS1838B has a bug when it's don't detect any IR code for long time see note at end (coming soon)
 
 ## Libararies and programs used to init project
 
