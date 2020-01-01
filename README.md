@@ -7,9 +7,9 @@ Project for decoding NEC IR protocol with interrupt to avoid blocking code.
 1 IR receiver  
 1 8x8 LED Matrix Drived with MAX7219 (optional)  
 
-## Schematics 
+## MCU Pinout 
 
-Coming soon ;)
+![Schematics](/Pictures/CubeMX_Pinout.PNG)
 
 ## Little guide of usage 
 
