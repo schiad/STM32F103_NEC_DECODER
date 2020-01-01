@@ -113,74 +113,78 @@ static void MX_SPI1_Init(void);
 /* USER CODE BEGIN 0 */
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	NEC1.count = __HAL_TIM_GET_COUNTER(&htim1);
-	__HAL_TIM_SET_COUNTER(&htim1, 0);
-	NEC1.gpio = HAL_GPIO_ReadPin(NEC_GPIO_Port, NEC_Pin);
-	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+	if (GPIO_Pin == NEC_Pin) {
+		NEC1.count = __HAL_TIM_GET_COUNTER(&htim1);
+		__HAL_TIM_SET_COUNTER(&htim1, 0);
+		NEC1.gpio = HAL_GPIO_ReadPin(NEC_GPIO_Port, NEC_Pin);
+		HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 #ifdef DEBUG
-	len = sprintf(BUFF, "DEBUG :\t%u\t%u\t%u\n\0", NEC1.i, NEC1.gpio, NEC1.count);
-	CDC_Transmit_FS(BUFF, len);
+		len = sprintf(BUFF, "DEBUG :\t%u\t%u\t%u\n\0", NEC1.i, NEC1.gpio, NEC1.count);
+		CDC_Transmit_FS(BUFF, len);
 #endif
 
-	if (NEC1.gpio && NEC1.count > 850 && NEC1.count < 1000) {
-		NEC1.init_seq = 1;
-		NEC1.complet = 0;
-	}
-
-	if (!NEC1.gpio && NEC1.count > 420 && NEC1.count < 480 && NEC1.init_seq) {
-		NEC1.i = -1;
-		NEC1.repeat = 0;
-		NEC1.init_seq = 0;
-	}
-
-	if (!NEC1.gpio && NEC1.count > 200 && NEC1.count < 260 && NEC1.init_seq) {
-		NEC1.i = -1;
-		NEC1.init_seq = 0;
-		NEC1.repeat++;
-		NEC1.complet = 1;
-	}
-
-	if (NEC1.gpio && NEC1.count > 40 && NEC1.count < 70) {
-		NEC1.i++;
-	}
-
-	if (!NEC1.gpio && NEC1.count > 40 && NEC1.count < 180) {
-		switch (NEC1.i / 8) {
-		case 0:
-			if (NEC1.count > 100) {
-				NEC1.addr |= (1 << (NEC1.i % 8));
-			} else {
-				NEC1.addr &= ~(1 << (NEC1.i % 8));
-			}
-			break;
-		case 1:
-			if (NEC1.count > 100) {
-				NEC1.addr_inv |= (1 << (NEC1.i % 8));
-			} else {
-				NEC1.addr_inv &= ~(1 << (NEC1.i % 8));
-			}
-			break;
-		case 2:
-			if (NEC1.count > 100) {
-				NEC1.cmd |= (1 << (NEC1.i % 8));
-			} else {
-				NEC1.cmd &= ~(1 << (NEC1.i % 8));
-			}
-			break;
-		case 3:
-			if (NEC1.count > 100) {
-				NEC1.cmd_inv |= (1 << (NEC1.i % 8));
-			} else {
-				NEC1.cmd_inv &= ~(1 << (NEC1.i % 8));
-			}
-			break;
-		default:
-			break;
+		if (NEC1.gpio && NEC1.count > 850 && NEC1.count < 1000) {
+			NEC1.init_seq = 1;
+			NEC1.complet = 0;
 		}
-	}
 
-	if (NEC1.i == 32) {
-		NEC1.complet = 1;
+		if (!NEC1.gpio && NEC1.count > 420 && NEC1.count < 480
+				&& NEC1.init_seq) {
+			NEC1.i = -1;
+			NEC1.repeat = 0;
+			NEC1.init_seq = 0;
+		}
+
+		if (!NEC1.gpio && NEC1.count > 200 && NEC1.count < 260
+				&& NEC1.init_seq) {
+			NEC1.i = -1;
+			NEC1.init_seq = 0;
+			NEC1.repeat++;
+			NEC1.complet = 1;
+		}
+
+		if (NEC1.gpio && NEC1.count > 40 && NEC1.count < 70) {
+			NEC1.i++;
+		}
+
+		if (!NEC1.gpio && NEC1.count > 40 && NEC1.count < 180) {
+			switch (NEC1.i / 8) {
+			case 0:
+				if (NEC1.count > 100) {
+					NEC1.addr |= (1 << (NEC1.i % 8));
+				} else {
+					NEC1.addr &= ~(1 << (NEC1.i % 8));
+				}
+				break;
+			case 1:
+				if (NEC1.count > 100) {
+					NEC1.addr_inv |= (1 << (NEC1.i % 8));
+				} else {
+					NEC1.addr_inv &= ~(1 << (NEC1.i % 8));
+				}
+				break;
+			case 2:
+				if (NEC1.count > 100) {
+					NEC1.cmd |= (1 << (NEC1.i % 8));
+				} else {
+					NEC1.cmd &= ~(1 << (NEC1.i % 8));
+				}
+				break;
+			case 3:
+				if (NEC1.count > 100) {
+					NEC1.cmd_inv |= (1 << (NEC1.i % 8));
+				} else {
+					NEC1.cmd_inv &= ~(1 << (NEC1.i % 8));
+				}
+				break;
+			default:
+				break;
+			}
+		}
+
+		if (NEC1.i == 32) {
+			NEC1.complet = 1;
+		}
 	}
 }
 
@@ -431,7 +435,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : NEC_Pin */
   GPIO_InitStruct.Pin = NEC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(NEC_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
