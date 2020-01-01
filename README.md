@@ -11,10 +11,10 @@ Project for decoding NEC IR protocol with interrupt to avoid blocking code.
 
 ![Schematics](/Pictures/CubeMX_Pinout.PNG)
 
-RCC_OSC_IN & RCC_OSC_OUT 	= 8MHz Oscillator 
-LED 				= Led for indicator 
-SPI1\* and CS pins 		= MAX7219 
-SYS_JT\*			= debug 
+RCC_OSC_IN & RCC_OSC_OUT 	= 8MHz Oscillator  
+LED 				= Led for indicator  
+SPI1\* and CS pins 		= MAX7219  
+SYS_JT\*			= debug  
 
 ## Little guide of usage 
 
