@@ -112,6 +112,27 @@ static void MX_SPI1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == TIM1) {
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+		NEC1.addr = 0;
+		NEC1.addr_inv = 0;
+		NEC1.cmd = 0;
+		NEC1.cmd_inv = 0;
+		NEC1.complet = 0;
+		NEC1.gpio = 0;
+		NEC1.i = 0;
+		NEC1.init_seq = 0;
+		NEC1.repeat = 0;
+		NEC1.complet = 0;
+		MAXIM(&hspi1, 1, NEC1.addr);
+		MAXIM(&hspi1, 2, NEC1.addr_inv);
+		MAXIM(&hspi1, 3, NEC1.cmd);
+		MAXIM(&hspi1, 4, NEC1.cmd_inv);
+		MAXIM(&hspi1, 5, NEC1.repeat);
+	}
+}
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == NEC_Pin) {
 		NEC1.count = __HAL_TIM_GET_COUNTER(&htim1);
@@ -225,7 +246,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	MAXIM_Init(&hspi1);
 	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-	HAL_TIM_Base_Start(&htim1);
+	HAL_TIM_Base_Start_IT(&htim1);
 
   /* USER CODE END 2 */
 
@@ -375,7 +396,7 @@ static void MX_TIM1_Init(void)
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
@@ -385,8 +406,8 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_OC1;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
